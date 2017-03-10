@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+PREFIX_ROOT="/usr/local/greathouse-php"
+
+while [[ $# -gt 1 ]]
+do
+key="$1"
+
+case ${key} in
+    -p|--prefix-root)
+    PREFIX_ROOT="$2"
+    shift
+    ;;
+esac
+shift # past argument or value
+done
+
+cd ${PREFIX_ROOT}
+
+for f in *; do [[ -L "$f" ]] || echo "$f"; done
+

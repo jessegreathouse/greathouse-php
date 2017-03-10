@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+VERSION="DEFAULT"
+CONFIG_PATH="DEFAULT"
+PREFIX_ROOT="/usr/local/greathouse-php"
+SCRIPT_DIR=`pwd`
+
+while [[ $# -gt 1 ]]
+do
+key="$1"
+
+case ${key} in
+    -v|--version)
+    VERSION="$2"
+    shift # past argument
+    ;;
+    -p|--prefix-root)
+    PREFIX_ROOT="$2"
+    shift
+    ;;
+esac
+shift # past argument or value
+done
+
+if [ "$VERSION" == "DEFAULT" ]; then
+    echo "You must specify a one of these versions."
+    echo "usage: use --version/-v (version number) [--prefix-root/-p (path)]"
+    ${SCRIPT_DIR}/list -v ${PREFIX_ROOT}
+    exit
+fi
+
+if [ ! -d "$PREFIX_ROOT/$VERSION" ]; then
+    echo "Invalid version or prefix root."
+    echo "your prefix root: $PREFIX_ROOT has versions:"
+    ${SCRIPT_DIR}/list -v ${PREFIX_ROOT}
+    exit
+fi
+
+cd ${PREFIX_ROOT}
+
+#update symlinks
+rm -rf "$PREFIX_ROOT/etc"
+ln -s "$PREFIX_ROOT/$VERSION/etc"
+rm -rf "$PREFIX_ROOT/bin"
+ln -s "$PREFIX_ROOT/$VERSION/bin"
+rm -rf "$PREFIX_ROOT/var"
+ln -s "$PREFIX_ROOT/$VERSION/var"
+rm -rf "$PREFIX_ROOT/lib"
+ln -s "$PREFIX_ROOT/$VERSION/lib"
+rm -rf "$PREFIX_ROOT/include"
+ln -s "$PREFIX_ROOT/$VERSION/include"
+rm -rf "$PREFIX_ROOT/php"
+ln -s "$PREFIX_ROOT/$VERSION/php"
+
+cd ${SCRIPT_DIR}
