@@ -97,20 +97,4 @@ env YACC=`brew --prefix bison27`/bin/bison ./configure \
 make -j `sysctl -n hw.logicalcpu_max`
 make install
 
-cd ${PREFIX_ROOT}
-
-#update symlinks
-rm -rf "$PREFIX_ROOT/etc"
-ln -s "$PREFIX_ROOT/$VERSION/etc"
-rm -rf "$PREFIX_ROOT/bin"
-ln -s "$PREFIX_ROOT/$VERSION/bin"
-rm -rf "$PREFIX_ROOT/var"
-ln -s "$PREFIX_ROOT/$VERSION/var"
-rm -rf "$PREFIX_ROOT/lib"
-ln -s "$PREFIX_ROOT/$VERSION/lib"
-rm -rf "$PREFIX_ROOT/include"
-ln -s "$PREFIX_ROOT/$VERSION/include"
-rm -rf "$PREFIX_ROOT/php"
-ln -s "$PREFIX_ROOT/$VERSION/php"
-
-cd ${SCRIPT_DIR}
+rm -rf ${WORKDIR}

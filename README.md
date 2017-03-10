@@ -13,7 +13,7 @@ If you want to execute PHP from the command line then be sure to add the bin to 
 `vim ~/.bash profile`
 
 add the line:
-* export PATH=/usr/local/greathouse-php/bin;$PATH
+* export PATH=/usr/local/greathouse-php/bin:$PATH
 
 **install-osx**
 
