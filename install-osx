@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+
+VERSION="DEFAULT"
+CONFIG_PATH="DEFAULT"
+PREFIX_ROOT="/usr/local/greathouse-php"
+SCRIPT_DIR=`pwd`
+UNPACK_SCRIPT="$SCRIPT_DIR/unpack"
+
+while [[ $# -gt 1 ]]
+do
+key="$1"
+
+case ${key} in
+    -v|--version)
+    VERSION="$2"
+    shift
+    ;;
+    -p|--prefix-root)
+    PREFIX_ROOT="$2"
+    shift
+    ;;
+    -c|--config-path)
+    CONFIG_PATH="$2"
+    shift
+    ;;
+esac
+shift # past argument or value
+done
+
+if [ "$VERSION" == "DEFAULT" ]; then
+    echo "No version specified, using version 7.1.2"
+    VERSION="7.1.2"
+fi
+
+if [ "$CONFIG_PATH" == "DEFAULT" ]; then
+    CONFIG_PATH="$PREFIX_ROOT/etc"
+fi
+
+WORKDIR="$SCRIPT_DIR/php-$VERSION"
+rm -rf ${WORKDIR}
+
+if [ ! -d "$WORKDIR" ]; then
+  ${UNPACK_SCRIPT} -v ${VERSION}
+  if [ ! -d "$WORKDIR" ]; then
+    echo "Unable to install version: $VERSION. Exiting."
+    exit
+  fi
+fi
+
+#install dependencies
+brew install autoconf automake gmp homebrew/versions/bison27 gd freetype t1lib gettext lzlib mcrypt
+
+if [ ! -d "$PREFIX_ROOT" ]; then
+    mkdir "$PREFIX_ROOT"
+fi
+
+if [ -d "$PREFIX_ROOT/$VERSION" ]; then
+    rm -rf "$PREFIX_ROOT/$VERSION"
+fi
+
+cd ${WORKDIR}
+
+./buildconf
+env YACC=`brew --prefix bison27`/bin/bison ./configure \
+    --prefix="$PREFIX_ROOT/$VERSION" \
+    --with-config-file-path="$CONFIG_PATH" \
+    --enable-mbstring \
+    --enable-zip \
+    --enable-bcmath \
+    --enable-pcntl \
+    --enable-ftp \
+    --enable-exif \
+    --enable-calendar \
+    --enable-sysvmsg \
+    --enable-sysvsem \
+    --enable-sysvshm \
+    --enable-wddx \
+    --with-curl \
+    --with-iconv \
+    --with-gmp \
+    --with-gd \
+    --with-jpeg-dir=`brew --prefix gd` \
+    --with-png-dir=`brew --prefix gd` \
+    --with-freetype-dir=`brew --prefix freetype` \
+    --with-t1lib=`brew --prefix t1lib` \
+    --enable-gd-native-ttf \
+    --enable-gd-jis-conv \
+#    --with-openssl \
+    --enable-mysqlnd \
+    --with-mysqli=mysqlnd \
+    --with-pdo-mysql=mysqlnd \
+    --with-mysql-sock=/tmp/mysql.sock \
+    --with-gettext=`brew --prefix gettext` \
+    --with-zlib=`brew --prefix zlib` \
+    --with-bz2 \
+    --with-mcrypt=`brew --prefix mcrypt`
+make -j `sysctl -n hw.logicalcpu_max`
+make install
+
+cd ${PREFIX_ROOT}
+
+#update symlinks
+rm -rf "$PREFIX_ROOT/etc"
+ln -s "$PREFIX_ROOT/$VERSION/etc"
+rm -rf "$PREFIX_ROOT/bin"
+ln -s "$PREFIX_ROOT/$VERSION/bin"
+rm -rf "$PREFIX_ROOT/var"
+ln -s "$PREFIX_ROOT/$VERSION/var"
+rm -rf "$PREFIX_ROOT/lib"
+ln -s "$PREFIX_ROOT/$VERSION/lib"
+rm -rf "$PREFIX_ROOT/include"
+ln -s "$PREFIX_ROOT/$VERSION/include"
+rm -rf "$PREFIX_ROOT/php"
+ln -s "$PREFIX_ROOT/$VERSION/php"
+
+cd ${SCRIPT_DIR}

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+VERSION="DEFAULT"
+SCRIPT_DIR=`pwd`
+
+while [[ $# -gt 1 ]]
+do
+key="$1"
+
+case ${key} in
+    -v|--version)
+    VERSION="$2"
+    shift # past argument
+    ;;
+esac
+shift # past argument or value
+done
+
+if [ "$VERSION" == "DEFAULT" ]; then
+    echo "No version specified, using version 7.1.2"
+    VERSION="7.1.2"
+fi
+
+ARCHIVE="$SCRIPT_DIR/archive/php-$VERSION.tar.gz"
+
+if [ ! -f ${ARCHIVE} ]; then
+    echo "Version: $VERSION not found ... attempting to download from php.net"
+    DOWNLOAD_URL="http://php.net/get/php-$VERSION.tar.gz/from/this/mirror"
+
+    if curl --output /dev/null --silent --head --fail ${DOWNLOAD_URL}; then
+        curl -Lo ${ARCHIVE} ${DOWNLOAD_URL}
+    else
+        echo "Version: $VERSION was not able to be downloaded from php.net. Please check version number or try to download manually. Exiting."
+        exit
+    fi
+fi
+
+echo "Unpacking $ARCHIVE ..."
+tar -xzvf ${ARCHIVE}
