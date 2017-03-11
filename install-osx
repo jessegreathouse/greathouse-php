@@ -48,7 +48,10 @@ if [ ! -d "$WORKDIR" ]; then
 fi
 
 #install dependencies
-brew install autoconf automake gmp homebrew/versions/bison27 gd freetype t1lib gettext lzlib mcrypt
+brew tap homebrew/dupes
+brew tap homebrew/versions
+brew install curl --with-libssh2 --with-openssl
+brew install autoconf automake gmp homebrew/versions/bison27 gd freetype t1lib gettext zlib mcrypt
 
 if [ ! -d "$PREFIX_ROOT" ]; then
     mkdir "$PREFIX_ROOT"
@@ -75,7 +78,7 @@ env YACC=`brew --prefix bison27`/bin/bison ./configure \
     --enable-sysvsem \
     --enable-sysvshm \
     --enable-wddx \
-    --with-curl \
+    --with-curl=`brew --prefix curl` \
     --with-iconv \
     --with-gmp \
     --with-gd \
@@ -85,7 +88,7 @@ env YACC=`brew --prefix bison27`/bin/bison ./configure \
     --with-t1lib=`brew --prefix t1lib` \
     --enable-gd-native-ttf \
     --enable-gd-jis-conv \
-#    --with-openssl \
+    --with-openssl=`brew --prefix openssl` \
     --enable-mysqlnd \
     --with-mysqli=mysqlnd \
     --with-pdo-mysql=mysqlnd \
